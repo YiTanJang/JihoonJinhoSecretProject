@@ -1,0 +1,152 @@
+Changes completed:
+1. Modified `src/SAmultithread.cpp`: Default mutation probabilities are now initialized to 0.03 for all 9 types (indices 0-8).
+2. Modified `scripts/monitor.py`:
+   - Default parameter cache is initialized to 0.03.
+   - `send_cmd` now waits for the C++ thread to process the command (checks `processed` flag) with a timeout, ensuring reliability.
+   - Removed manual `time.sleep` in the 'g' toggle and 'reseed' loops as `send_cmd` handles the flow control.
+3. Rebuilt `SAmultithread.exe`.
+
+4. Modified `src/SAmultithread.cpp` (Probability Normalization):
+   - Initialized `params[9]` to 0.73 to represent the default action (Random Swap) weight.
+   - Implemented probability normalization in the action selection loop by scaling the random roll by the total weight of all parameters. This ensures relative weighting works correctly and preserves the default action probability.
+
+5. Modified `scripts/monitor.py`:
+   - Updated `PARAM_NAMES` to include "Default" at index 9 (previously "Unused"), allowing users to monitor and tune the default action probability.
+
+6. Modified `scripts/ai_optimizer.py`:
+   - Increased `PARAM_DIM` from 10 to 11 to include `params[9]` (Default Action) in the AI model's training and inference.
+   - Updated input vector construction to use all 10 parameters (0-9) + Temperature.
+   - Updated command sending logic to correctly identify index 10 as Temperature updates and index 9 as a regular parameter update.
+   - Updated display logic to show the top 3 probabilities from all 10 action types (0-9).
+   - [MAJOR] Implemented dual-model architecture:
+     - Replaced the single LSTM model with a dictionary of two separate models (`models[0]` and `models[1]`) and optimizers.
+     - The training and inference loops now automatically select the appropriate model based on the thread's current mode (Length vs. Frequency).
+     - This ensures that the distinct optimization dynamics of each mode are learned separately without interference.
+
+7. Implemented Board State Export & Visualization:
+   - Modified `include/shared_mem.h`: Added `current_board[8][14]` to `ThreadStatus`.
+   - Modified `src/SAmultithread.cpp`: Initialized shared memory mapping with `sizeof(MonitorData)` dynamically. Added logic to copy `local_board` to shared memory every 100 iterations.
+   - Modified `scripts/monitor.py`:
+     - Updated `FMT_STATUS` and `MAP_SIZE` to support board data.
+     - Added a Board Visualizer panel that displays the real-time board state of the selected thread using a color-coded grid.
+   - Modified `scripts/ai_optimizer.py` and `scripts/graph_monitor.py`:
+     - Updated shared memory configuration to avoid size mismatches.
+     - Updated parameter extraction logic.
+
+8. Database Enhancements:
+   - Modified `src/db_manager.cpp`:
+     - Added `lock_guard` to `save_lineage_result` for thread safety.
+     - Enabled `WAL` auto-checkpointing (1000 pages).
+     - Updated `cleanup_low_scores` to perform `PRAGMA wal_checkpoint(TRUNCATE)` for managing `.db-wal` file size.
+   - Modified `src/SAmultithread.cpp`:
+     - Added immediate DB save logic when a thread finds a new local best score.
+     - Added periodic calls to `cleanup_low_scores(0)` every 60 seconds to trigger WAL checkpoints.       
+
+9. [MAJOR] Richness-based Bucket Optimization Architecture:
+   - Modified `get_richness_score`: Implemented "Exile + Sorted Squared Penalty" logic.
+     - Counts unique 5-digit paths starting from each digit (0-9).
+     - Best 9 buckets are penalized by `(10000 - richness)^2 * (rank+1)^2`.
+     - Worst bucket is ignored ("Exiled" to digit 0).
+   - Unified all scoring to Mode 0 (Richness). Commented out legacy Length/Freq/Hybrid modes.
+   - Migrated existing boards to a new unified `boards` table in DB.
+   - Streamlined `ai_optimizer.py` and `monitor.py` for Richness-only optimization.
+   - Integrated new mutation operators:
+     - `apply_double_cell_mutation`
+     - `apply_triple_cycle_swap`
+     - `apply_random_2_cell_swap`
+     - `apply_single_cell_mutation` (Term update for Random Swap)
+
+10. [TOPOLOGICAL INSIGHT] Discovery of the "01234 vs 1234" Edge Case:
+    - Note: Current Richness (length 5 fixed) counts `01234` in the `0` bucket.
+    - Edge Case: A board might have `0->1->2->3->4` but lack `1->2->3->4->X`.
+    - Impact: The board is topologically rich for `0xxxx` but potentially weak for `1xxxx` (integer 1234).
+    - Decision: Keep length-5 fixed scoring to maximize "path extension" difficulty, forcing the board to develop long, versatile chains.
+
+11. [PRECISION] Optimized Richness Penalty scaling:
+    - Raw penalty sum requires 36 bits of precision (~28.5B).
+    - SAmultithread uses raw 64-bit long long for all score calculations.
+
+12. [FINAL STRATEGY] Linear Penalty + Squared Weights + 11th Bucket:
+    - Penalty Model: Linear (Constant Gradient for Metropolis sensitivity).
+    - Bucket Weights: (Rank+1)^2 (Extreme focus on weakest bottlenecks).
+    - 11th Bucket: 4-digit sequences (0000-9999) with weight 100 to fix reachability.
+    - Temperature Schedule:
+        - INITIAL_TEMP: 1,000,000.0 (High energy for global exploration).
+        - COOLING_RATE: 0.999995 (Extremely slow cooling).
+        - REHEAT_THRESHOLD: 100.0 (Restart cycle at stable floor).
+        - Constant Factor: 1.0 (Direct alignment with penalty units).
+
+14. [SIDE PROJECT] 4-Digit Richness Optimizer:
+    - Created `SAmultithread_4d.exe` with dedicated 4-digit scoring logic.
+    - Implemented `get_richness_score_4d` (10 buckets of size 1000 + 11th bucket for 3-digits).
+    - Uses separate database `db/optimizer_4d.db` and SHM `Local\SAMonitor4D`.
+    - Allows parallel optimization of 4-digit topological foundation.
+
+13. [OPTIMIZATION] Bitboard BFS for Richness Scoring:
+    - Replaced recursive DFS with Layered Bitboard BFS.
+    - Uses 16-bit word operations (dilate/AND) for massive speedup.
+    - Eliminates redundant path exploration by tracking reachable masks per sequence.
+    - Updated INITIAL_TEMP to 100,000.0 for better balance with linear penalty.
+
+15. [REVERT] Weighted Hole Parity Logic:
+    - Reverted the 2x penalty for cyclic numbers in `get_richness_score` and `calculate_score_from_oracle_4d`.
+    - All missing numbers now carry a uniform weight of 1, regardless of their cyclic property.
+    - This addresses the pathology where boards were getting stuck with clumps of identical numbers.      
+    - Rebuilt `SAmultithread_4d.exe`.
+
+16. [LOGIC] Dynamic Greedy Strategy Propagation:
+    - Updated `src/mutations.cpp` and `include/mutations.h` to accept `strategy` parameter in `apply_greedy_optimize_4d`, `apply_adj_random_mutation_greedy_optimize`, and `perform_greedy_optimize_cell`.
+    - Updated `src/solver_4d.cpp` to pass the thread's current strategy (from `SAIsland4D` member) to these greedy mutation functions.
+    - This ensures that the greedy optimization steps respect the current scoring strategy (e.g., Quadratic vs Quartic weights) rather than hardcoding a specific mode.
+    - Changed default strategy for new tasks in `SAmultithread_4d.cpp` from 3 (Quartic) to 1 (Quadratic) to reduce stiffness and improve exploration.
+
+17. [BUGFIX] ALNS Weight Update Logic:
+    - Corrected the `segment_counts` increment logic in `SAIsland4D::apply_mutation` (src/solver_4d.cpp). 
+    - Previously, `segment_counts` was only incremented when a move was *accepted*. This biased the Adaptive Large Neighborhood Search (ALNS) weights towards operators with high acceptance rates but potentially low value (e.g., random noise), while penalizing high-value but lower-acceptance operators (like greedy optimization).
+    - Moved the increment to happen immediately after operator selection. The metric now correctly represents "Expected Score Improvement per Attempt" rather than "Score Improvement per Acceptance".
+    - Rebuilt `SAmultithread_4d.exe`.
+
+18. [TUNING] Temperature Schedule Adjustment:
+    - Reduced `Config4D::INITIAL_TEMP` from 2500.0 to 150.0 in `include/solver_4d.h`.
+    - Analysis of Metropolis-Hastings acceptance probabilities indicated that the previous temperature was too high (approx 96% acceptance for typical bad moves), effectively causing a random walk and negating the gradient pressure needed for convergence.
+    - The new temperature should provide a more balanced acceptance rate (approx 50-70% for small defects), enforcing stronger selection pressure on the board structure.
+
+19. [LOGIC] Linear Scoring Implementation (Strategy 1):
+    - Modified `calculate_score_from_oracle_4d` in `src/logic.cpp` to redefine Strategy 1 as "Linear Scoring".
+    - Removed the "Rank Squared" weighting and the "Exile Worst Bucket" logic for Strategy 1.
+    - All missing numbers now carry a uniform weight of 1, regardless of which bucket they belong to or the bucket's rank.
+    - This is intended to eliminate the "Penalty Cliff" that discouraged starting new buckets (diversification) and caused digit clumping.
+    - Rebuilt `SAmultithread_4d.exe`.
+
+20. [DEBUG] Fixed Operator Probabilities:
+    - Implemented fixed mutation probabilities in `SAIsland4D` (src/solver_4d.cpp) to eliminate selector bias as a potential cause for board clumping.
+    - Probabilities are now hardcoded: Micro-moves (10.0), Meso-moves (2.0), Macro-moves (0.5), and Greedy/Composite moves (0.1).
+    - Disabled the Adaptive Large Neighborhood Search (ALNS) update logic in `update_weights`.
+    - Removed the hardcoded 5% `apply_greedy_optimize` call from `apply_mutation`, ensuring all actions follow the specified weights.
+    - Rebuilt `SAmultithread_4d.exe`.
+
+21. [DEBUG] Disabled Greedy Actions:
+    - Set the weights for greedy actions (indices 18 and 19) to 0.0 in `SAIsland4D` constructor (src/solver_4d.cpp).
+    - This completely disables greedy optimization steps to determine if they are the cause of the clumping pathology.
+    - Rebuilt `SAmultithread_4d.exe`.
+
+22. [BUGFIX] Mutation Rollback Logic:
+    - Corrected the iteration order in `evaluate_and_accept` (src/solver_4d.cpp) to use `rbegin()` / `rend()`.
+    - Previously, the forward iteration caused state corruption when a mutation modified the same cell multiple times (e.g., overlapping swaps in `patch_swap` or multiple hits in `double_cell_mutation`). The incorrect rollback effectively "baked in" intermediate states of rejected moves, leading to board corruption and potentially reinforcing clumped patterns.
+    - Rebuilt `SAmultithread_4d.exe`.
+
+23. [UPDATE] Version 1.2: Refactored Solver Modes (4D):
+    - Replaced `--load` and `--run` flags with a single `--mode` flag.
+    - **Mode 0 (Pure SA)**: Standard Simulated Annealing with random starts (no reheating). Best for broad search.
+    - **Mode 1 (Elite Reheat)**: Starts from Elite Boards in DB, with iterative reheating (Target Acc 0.40 -> decay 0.75). Best for refining good structures.
+    - Updated codebase to use `g_solver_mode` and bumped version to 1.2.
+
+24. [UPDATE] Version 1.3: LNS Overhaul (Mode 2):
+    - **Sliding Window Perturbation**: Systematic 4x4 sliding window approach (55 overlapping windows).
+    - **Forward/Reverse Passes**: Each full pass now includes a sequential forward sweep followed by a reverse sweep (no shuffle).
+    - **Multi-Cycle Repair**: Each window undergoes 3 independent repair cycles. Each cycle resets to `local_best_board` to lock in gains.
+    - **Geometric Cooling**: Each repair cycle uses geometric cooling (`rate 0.99995`) from Temp 10.0 to 0.1, up to 200,000 iterations.
+    - **Stagnation Control**: Added a 15,000-iteration stagnation abort within each repair cycle to skip unproductive searches.
+    - **Restricted LNS Mutations**: Repair cycles only use two mutation types: random cell mutation in the 4x4 box and 8-direction swaps (adjacent/diagonal) strictly internal to the 4x4 patch.
+    - **Plateau Traversal**: Updated `update_bests` to accept equal scores (`>=`), allowing the solver to move across plateaus while keeping the latest board state.
+    - **Monitor Update**: Fixed `monitor_4d.py` layout to accommodate all 15 mutation operators and increased panel height.

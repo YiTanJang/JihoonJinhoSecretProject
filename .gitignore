@@ -1,0 +1,43 @@
+# C++ Build Artifacts
+bin/
+obj/
+*.exe
+*.dll
+*.lib
+*.exp
+*.obj
+*.o
+*.a
+*.pdb
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Databases and Large Data
+db/
+*.db
+*.db-shm
+*.db-wal
+*.csv
+*.zip
+
+# IDE and System
+.vscode/
+.vs/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# Logs and Output
+logs/
+*.log
+*.tmp
+
+# Specific Generated Files
+SAmultithread_4d_linux.zip
+analyze_physics.zip
+peak_heat_capacity.csv
+physics_summary.csv
