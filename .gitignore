@@ -41,3 +41,7 @@ SAmultithread_4d_linux.zip
 analyze_physics.zip
 peak_heat_capacity.csv
 physics_summary.csv
+
+# Private/Excluded files
+solution_10109.txt
+lib/sqlite3/
