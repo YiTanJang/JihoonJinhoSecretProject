@@ -8,6 +8,16 @@ if exist "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\B
     call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" >nul
 )
 
+:: Check for Dependencies
+if not exist "lib\sqlite3\sqlite3.c" (
+    echo [BUILD] SQLite sources not found. Running setup script...
+    python scripts\setup_dependencies.py
+    if errorlevel 1 (
+        echo [BUILD] Failed to setup dependencies.
+        exit /b 1
+    )
+)
+
 if not exist bin mkdir bin
 if not exist obj mkdir obj
 
