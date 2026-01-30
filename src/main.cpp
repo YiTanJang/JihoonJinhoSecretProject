@@ -39,7 +39,7 @@ void signal_handler(int signal) {
     }
 }
 
-void init_shared_mem_4d() {
+void init_shared_mem_4d(int thread_count) {
 #ifdef _WIN32
     // Use "SAMonitor4D" directly for broader compatibility between processes
     HANDLE hMapFile = CreateFileMappingA(
@@ -52,7 +52,7 @@ void init_shared_mem_4d() {
     g_monitor_ptr = (MonitorData*)MapViewOfFile(hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, 65536);
     if (g_monitor_ptr) {
         memset(g_monitor_ptr, 0, sizeof(MonitorData));
-        g_monitor_ptr->num_threads = 12; 
+        g_monitor_ptr->num_threads = thread_count; 
         std::println("[INIT] Shared Memory Mapped at {:p}", (void*)g_monitor_ptr);
     } else {
         std::println("[ERROR] MapViewOfFile failed ({})", GetLastError());
@@ -74,7 +74,7 @@ void init_shared_mem_4d() {
     }
     close(shm_fd);
     memset(g_monitor_ptr, 0, sizeof(MonitorData));
-    g_monitor_ptr->num_threads = 12;
+    g_monitor_ptr->num_threads = thread_count;
 #endif
 }
 
