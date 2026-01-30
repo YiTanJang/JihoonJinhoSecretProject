@@ -25,7 +25,7 @@ std::vector<EliteBoard4D> g_loaded_elites;
 int g_solver_mode = 0;
 std::string g_experiment_table_name = "anarchy_boards_default";
 std::string g_experiment_log_table = "anarchy_logs_default";
-const std::string SOLVER_VERSION = "1.4";
+const std::string SOLVER_VERSION = "1.5";
 
 std::string serialize_board(const std::array<std::array<int, 14>, 8>& b) {
     std::string s;

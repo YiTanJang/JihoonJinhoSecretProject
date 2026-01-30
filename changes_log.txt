@@ -159,3 +159,12 @@ Changes completed:
     - **Dependency Management**: Integrated `scripts/setup_dependencies.py` to handle SQLite amalgamation downloads, keeping the Git repository clean of external library sources.
     - **Git Migration**: Initialized Git repository with comprehensive `.gitignore` for collaborative development.
 
+26. [UPDATE] Version 1.5: Physics Refinement & Calibration Removal:
+    - **Physics Update**: Re-analyzed logs to set `CRITICAL_TEMP` (39.78) and `SECOND_CRITICAL_TEMP` (1.28).
+    - **Lookup Table**: Updated `PhysicsLookup` with a new 200-point BadAR-to-Temp mapping, replacing runtime calibration entirely.
+    - **Cooling Rate**: Doubled cooling duration (`0.9999994` -> `0.9999997`).
+    - **Dynamic Cooling**: Widened Second Critical Zone range to `[0.5x, 4.0x]` of T_c2.
+    - **Action Capping**: Refined Heatmap Mutation capping (5% mutate, 15% swap) strictly within the Second Critical Zone.
+    - **Optimization**: Removed `calibrate_temperature` function; all temp settings now use the static lookup table.
+
+
