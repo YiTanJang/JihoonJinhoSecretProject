@@ -192,7 +192,7 @@ void SAIsland4D::run_standard_sa() {
                 if (temp < Config4D::MIN_TEMP) temp = Config4D::MIN_TEMP;
 
                 bool in_crit1 = (temp >= 0.25 * Config4D::CRITICAL_TEMP && temp <= 2.0 * Config4D::CRITICAL_TEMP);
-                bool in_crit2 = (temp >= 0.25 * Config4D::SECOND_CRITICAL_TEMP && temp <= 2.0 * Config4D::SECOND_CRITICAL_TEMP);
+                bool in_crit2 = (temp >= 0.5 * Config4D::SECOND_CRITICAL_TEMP && temp <= 4.0 * Config4D::SECOND_CRITICAL_TEMP);
                 if ((in_crit1 || in_crit2) && solver_mode != 3) dynamic_cooling_iter++;
 
                 apply_mutation();
@@ -1072,7 +1072,7 @@ void SAIsland4D::run_polishing_sa() {
             if (temp < Config4D::MIN_TEMP) temp = Config4D::MIN_TEMP;
 
             bool in_crit1 = (temp >= 0.25 * Config4D::CRITICAL_TEMP && temp <= 2.0 * Config4D::CRITICAL_TEMP);
-            bool in_crit2 = (temp >= 0.25 * Config4D::SECOND_CRITICAL_TEMP && temp <= 2.0 * Config4D::SECOND_CRITICAL_TEMP);
+            bool in_crit2 = (temp >= 0.5 * Config4D::SECOND_CRITICAL_TEMP && temp <= 4.0 * Config4D::SECOND_CRITICAL_TEMP);
             if (in_crit1 || in_crit2) dynamic_cooling_iter++;
 
             apply_mutation();
