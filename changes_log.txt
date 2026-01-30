@@ -150,3 +150,12 @@ Changes completed:
     - **Restricted LNS Mutations**: Repair cycles only use two mutation types: random cell mutation in the 4x4 box and 8-direction swaps (adjacent/diagonal) strictly internal to the 4x4 patch.
     - **Plateau Traversal**: Updated `update_bests` to accept equal scores (`>=`), allowing the solver to move across plateaus while keeping the latest board state.
     - **Monitor Update**: Fixed `monitor_4d.py` layout to accommodate all 15 mutation operators and increased panel height.
+
+25. [UPDATE] Version 1.4: Mode 1 Overhaul & Dynamic Threading:
+    - **Mode 1 Reheat Overhaul**: Implemented a fixed 4-cycle loop (0-3). If an improvement is found, the cycle count resets to 0, restarting the sequence on the improved board.
+    - **Target AR Schedule (Mode 1)**: Unified cycle initialization using `PhysicsLookup` with specific targets: Cycle 0 (0.15), Cycle 1 (0.225), Cycle 2 (0.3), Cycle 3 (0.4).
+    - **Dynamic Threading**: Replaced hardcoded 12 threads with `std::thread::hardware_concurrency()`, allowing the solver to utilize all available CPU cores automatically.
+    - **Mode 3 (Lightweight SA)**: Added Mode 3 which uses a random seed (1 cycle) but bypasses all "critical phase" logic (no dynamic cooling slowdowns, no action weight capping).
+    - **Dependency Management**: Integrated `scripts/setup_dependencies.py` to handle SQLite amalgamation downloads, keeping the Git repository clean of external library sources.
+    - **Git Migration**: Initialized Git repository with comprehensive `.gitignore` for collaborative development.
+
