@@ -988,13 +988,19 @@ void SAIsland4D::update_weights() {
             check_cap(4, 0.35); // domino_local
             check_cap(5, 0.30); // domino_global
             
-            double heatmap_cap = 0.50;
-            if (solver_mode != 3 && temp <= 2.0 * Config4D::SECOND_CRITICAL_TEMP) {
-                heatmap_cap = 0.05;
+            double heatmap_swap_cap = 0.50;
+            double heatmap_mutate_cap = 0.50;
+
+            bool in_second_crit_zone = (temp >= 0.5 * Config4D::SECOND_CRITICAL_TEMP && temp <= 4.0 * Config4D::SECOND_CRITICAL_TEMP);
+            
+            if (solver_mode != 3 && in_second_crit_zone) {
+                heatmap_swap_cap = 0.15;
+                heatmap_mutate_cap = 0.05;
             }
-            check_cap(10, heatmap_cap); // heatmap_swap
-            check_cap(11, heatmap_cap); // heatmap_domino_swap
-            check_cap(12, heatmap_cap); // heatmap_mutate
+
+            check_cap(10, heatmap_swap_cap); // heatmap_swap
+            check_cap(11, heatmap_swap_cap); // heatmap_domino_swap
+            check_cap(12, heatmap_mutate_cap); // heatmap_mutate
 
             if (changed) {
                 double current_variable_share_sum = 0;
