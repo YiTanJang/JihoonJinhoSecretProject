@@ -867,7 +867,7 @@ void SAIsland4D::run_healing_burst(int iterations, double target_ar, bool use_ba
 void SAIsland4D::update_monitor() {
     if (!g_monitor_ptr || (total_iter % 100 != 0)) return;
 
-    g_monitor_ptr->num_threads = 12;
+    // g_monitor_ptr->num_threads = 12; // Set by main
     // g_monitor_ptr->global_best_score = ...; // Optional: 4D global best
 
     auto& ts = g_monitor_ptr->status[thread_id];

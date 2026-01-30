@@ -100,8 +100,11 @@ int main(int argc, char* argv[]){
         std::println("[INIT] Initializing DB...");
         init_db_4d();
         
+        unsigned int hw_threads = std::thread::hardware_concurrency();
+        const int num_threads = (hw_threads > 0) ? static_cast<int>(hw_threads) : 12;
+
         std::println("[INIT] Initializing Shared Memory...");
-        init_shared_mem_4d();
+        init_shared_mem_4d(num_threads);
         
         std::println("[INIT] Initializing Richness Lookup...");
         init_richness_lookup();
@@ -119,7 +122,6 @@ int main(int argc, char* argv[]){
             std::println("Loaded {} boards.", g_loaded_elites.size());
         }
 
-        const int num_threads = 12;
         std::vector<std::thread> workers;
 
         std::println("[INIT] Spawning {} threads...", num_threads);
