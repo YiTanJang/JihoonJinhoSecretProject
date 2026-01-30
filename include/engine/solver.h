@@ -98,7 +98,6 @@ private:
     // Helpers
     double calculate_score(const std::array<std::array<int, 14>, 8>& board) const;
     double calculate_initial_temperature();
-    double calibrate_temperature(double target_acceptance);
 
     // Score accessors
     double get_current_score() const { 

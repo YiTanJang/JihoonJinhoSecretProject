@@ -72,52 +72,11 @@ SAIsland4D::SAIsland4D(int id, int mode)
     initialize_lineage(true);
 }
 
-double SAIsland4D::calibrate_temperature(double target_acceptance) {
-    const int CALIBRATION_STEPS = 10000; 
-    std::vector<double> bad_deltas;
-    bad_deltas.reserve(CALIBRATION_STEPS);
-    
-    double base_score = current_score;
-
-    for (int i = 0; i < CALIBRATION_STEPS; ++i) {
-        int op_idx = std::uniform_int_distribution<int>(0, 12)(rng);
-        auto backup = mutation_operators[op_idx]();
-        if (backup.empty()) continue;
-
-        int basis_count = 0;
-        double new_score = 0;
-        get_basis_score_combined(current_board, 0.75, 0.25, basis_count, new_score);
-        double delta = base_score - new_score;
-
-        if (delta > 0) bad_deltas.push_back(delta);
-
-        // Revert
-        for (int j = (int)backup.size() - 1; j >= 0; --j) {
-            const auto& b = backup[j];
-            int r = std::get<0>(b);
-            int c = std::get<1>(b);
-            int old_val = std::get<2>(b);
-            current_board[r][c] = old_val;
-        }
-    }
-    
-    if (bad_deltas.empty()) return Config4D::MIN_TEMP * 10.0;
-    
-    double sum_bad = 0.0;
-    for (double d : bad_deltas) sum_bad += d;
-    double avg_bad = sum_bad / bad_deltas.size();
-    
-    double t = -avg_bad / std::log(target_acceptance);
-    
-    if (t > 1e15) t = 1e15;
-    if (t < Config4D::MIN_TEMP) t = Config4D::MIN_TEMP;
-    
-    return t;
-}
-
 double SAIsland4D::calculate_initial_temperature() {
-    double t = calibrate_temperature(0.80);
-    if (t > 8.0 * Config4D::CRITICAL_TEMP) t = 8.0 * Config4D::CRITICAL_TEMP;
+    double t = PhysicsLookup::get_temp_for_bad_ar(0.80);
+    // if (t > 8.0 * Config4D::CRITICAL_TEMP) t = 8.0 * Config4D::CRITICAL_TEMP; // No clamping needed? 
+    // Usually lookup table max AR is 0.41, so 0.80 is way off chart (will return max temp ~300)
+    // Actually the new table goes up to 0.80 BadAR = 307.06 Temp. So it works.
     return t;
 }
 
@@ -805,7 +764,8 @@ void SAIsland4D::apply_lns_repair_mutation(int r_start, int c_start, int height,
 
 void SAIsland4D::run_healing_burst(int iterations, double target_ar, bool use_bad_ar, bool skip_calibration) {
     if (!skip_calibration) {
-        temp = calibrate_temperature(target_ar);
+        // Use lookup for instant temp setting
+        temp = PhysicsLookup::get_temp_for_bad_ar(target_ar);
     }
     std::printf("[Thread %d] Starting Healing Burst (%d iter, Target %s AR: %.3f)...\n", 
                thread_id, iterations, use_bad_ar ? "Bad" : "Total", target_ar);
@@ -1057,11 +1017,11 @@ void SAIsland4D::run_polishing_sa() {
         }
 
         double target_acc = 0.20; 
-        temp = calibrate_temperature(target_acc);
-        if (temp < 1.12 * Config4D::CRITICAL_TEMP) temp = 1.12 * Config4D::CRITICAL_TEMP; 
-        if (temp > 1.6 * Config4D::CRITICAL_TEMP) temp = 1.6 * Config4D::CRITICAL_TEMP;
+        temp = PhysicsLookup::get_temp_for_bad_ar(target_acc);
+        // if (temp < 1.12 * Config4D::CRITICAL_TEMP) temp = 1.12 * Config4D::CRITICAL_TEMP; 
+        // if (temp > 1.6 * Config4D::CRITICAL_TEMP) temp = 1.6 * Config4D::CRITICAL_TEMP;
         
-        std::printf("[Thread %d] Polishing Cycle %d | Temp: %.2f\n", thread_id, polishing_cycles, temp);
+        std::printf("[Thread %d] Polishing Cycle %d | Temp: %.2f (Lookup)\n", thread_id, polishing_cycles, temp);
 
         double cycle_initial_temp = temp;
         long long dynamic_cooling_iter = 0;
