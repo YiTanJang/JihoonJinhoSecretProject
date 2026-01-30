@@ -132,7 +132,7 @@ void SAIsland4D::run() {
 void SAIsland4D::run_standard_sa() {
     // Mode 0: Pure SA (1 cycle), Mode 1: Reheat SA
     while (!g_terminate_all) {
-        int max_cycles = (solver_mode == 0) ? 1 : 4;
+        int max_cycles = (solver_mode == 0 || solver_mode == 3) ? 1 : 4;
         while (cycle_count < max_cycles && !g_terminate_all) {
             // Cycle Init
             if (cycle_count > 0) {
@@ -193,7 +193,7 @@ void SAIsland4D::run_standard_sa() {
 
                 bool in_crit1 = (temp >= 0.25 * Config4D::CRITICAL_TEMP && temp <= 2.0 * Config4D::CRITICAL_TEMP);
                 bool in_crit2 = (temp >= 0.25 * Config4D::SECOND_CRITICAL_TEMP && temp <= 2.0 * Config4D::SECOND_CRITICAL_TEMP);
-                if (in_crit1 || in_crit2) dynamic_cooling_iter++;
+                if ((in_crit1 || in_crit2) && solver_mode != 3) dynamic_cooling_iter++;
 
                 apply_mutation();
                 update_monitor();
@@ -989,7 +989,7 @@ void SAIsland4D::update_weights() {
             check_cap(5, 0.30); // domino_global
             
             double heatmap_cap = 0.50;
-            if (temp <= 2.0 * Config4D::SECOND_CRITICAL_TEMP) {
+            if (solver_mode != 3 && temp <= 2.0 * Config4D::SECOND_CRITICAL_TEMP) {
                 heatmap_cap = 0.05;
             }
             check_cap(10, heatmap_cap); // heatmap_swap
