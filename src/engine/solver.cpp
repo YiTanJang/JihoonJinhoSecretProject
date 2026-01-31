@@ -948,9 +948,9 @@ void SAIsland4D::update_weights() {
             check_cap(4, 0.35); // domino_local
             check_cap(5, 0.30); // domino_global
             
-            // Unconditional 5% cap for all heatmap operations as requested
-            check_cap(10, 0.05); // heatmap_swap
-            check_cap(11, 0.05); // heatmap_domino_swap
+            // Refined heatmap caps: 10% for swaps, 5% for mutation
+            check_cap(10, 0.10); // heatmap_swap
+            check_cap(11, 0.10); // heatmap_domino_swap
             check_cap(12, 0.05); // heatmap_mutate
 
             if (changed) {
