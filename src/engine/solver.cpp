@@ -150,7 +150,7 @@ void SAIsland4D::run_standard_sa() {
                 temp = cycle_initial_temp * std::pow(Config4D::COOLING_RATE, normal_iter) * std::pow(slow_cooling_rate, static_cast<double>(dynamic_cooling_iter));
                 if (temp < Config4D::MIN_TEMP) temp = Config4D::MIN_TEMP;
 
-                bool in_crit1 = (temp >= 0.0625 * Config4D::CRITICAL_TEMP && temp <= 2.0 * Config4D::CRITICAL_TEMP);
+                bool in_crit1 = (temp >= 0.015625 * Config4D::CRITICAL_TEMP && temp <= 2.0 * Config4D::CRITICAL_TEMP);
                 // bool in_crit2 = (temp >= 0.5 * Config4D::SECOND_CRITICAL_TEMP && temp <= 4.0 * Config4D::SECOND_CRITICAL_TEMP);
                 if (in_crit1 && solver_mode != 3) dynamic_cooling_iter++;
 
@@ -1028,7 +1028,7 @@ void SAIsland4D::run_polishing_sa() {
             temp = cycle_initial_temp * std::pow(Config4D::COOLING_RATE, normal_iter) * std::pow(slow_cooling_rate, static_cast<double>(dynamic_cooling_iter));
             if (temp < Config4D::MIN_TEMP) temp = Config4D::MIN_TEMP;
 
-            bool in_crit1 = (temp >= 0.0625 * Config4D::CRITICAL_TEMP && temp <= 2.0 * Config4D::CRITICAL_TEMP);
+            bool in_crit1 = (temp >= 0.015625 * Config4D::CRITICAL_TEMP && temp <= 2.0 * Config4D::CRITICAL_TEMP);
             // bool in_crit2 = (temp >= 0.5 * Config4D::SECOND_CRITICAL_TEMP && temp <= 4.0 * Config4D::SECOND_CRITICAL_TEMP);
             if (in_crit1) dynamic_cooling_iter++;
 
