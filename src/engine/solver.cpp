@@ -949,7 +949,7 @@ void SAIsland4D::update_weights() {
             check_cap(5, 0.30); // domino_global
             
             double heatmap_swap_cap = 0.50;
-            double heatmap_mutate_cap = (solver_mode == 3) ? 0.50 : 0.15;
+            double heatmap_mutate_cap = 0.15;
 
             // Keep caps active during and after the second critical zone (temps <= 4.0 * T_c2)
             bool caps_active = (temp <= 4.0 * Config4D::SECOND_CRITICAL_TEMP);
