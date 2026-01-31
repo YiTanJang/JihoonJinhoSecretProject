@@ -2,7 +2,7 @@
 
 namespace Config4D {
     // Thermal Physics
-    inline double CRITICAL_TEMP = 39.7782;
+    inline double CRITICAL_TEMP = 37.1848;
     inline double SECOND_CRITICAL_TEMP = 1.2841;
     inline double MIN_TEMP = 0.001 * CRITICAL_TEMP;   // 0.03923
     inline double COOLING_RATE = 0.9999997;
