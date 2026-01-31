@@ -951,9 +951,10 @@ void SAIsland4D::update_weights() {
             double heatmap_swap_cap = 0.50;
             double heatmap_mutate_cap = 0.50;
 
-            bool in_second_crit_zone = (temp >= 0.5 * Config4D::SECOND_CRITICAL_TEMP && temp <= 4.0 * Config4D::SECOND_CRITICAL_TEMP);
+            // Keep caps active during and after the second critical zone (temps <= 4.0 * T_c2)
+            bool caps_active = (temp <= 4.0 * Config4D::SECOND_CRITICAL_TEMP);
             
-            if (solver_mode != 3 && in_second_crit_zone) {
+            if (solver_mode != 3 && caps_active) {
                 heatmap_swap_cap = 0.15;
                 heatmap_mutate_cap = 0.05;
             }
