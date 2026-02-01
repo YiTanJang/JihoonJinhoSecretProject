@@ -971,8 +971,8 @@ void SAIsland4D::update_weights() {
             check_cap(1, 0.40); // dist2
             check_cap(2, 0.03); // global_swap
             check_cap(3, 0.03); // rand_cell
-            check_cap(4, 0.35); // domino_local
-            check_cap(5, 0.30); // domino_global
+            check_cap(4, 0.15); // domino_local
+            check_cap(5, 0.15); // domino_global
             
             // Refined heatmap caps: 10% for swaps, 5% for mutation
             check_cap(10, 0.10); // heatmap_swap
