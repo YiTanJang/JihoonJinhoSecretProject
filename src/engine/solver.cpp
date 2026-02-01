@@ -269,7 +269,11 @@ void SAIsland4D::run_lns_sa() {
              current_score = local_best_score;
              
              // Reset ALNS weights for clean start on this hole
-             std::fill(action_weights.begin(), action_weights.end(), 1.0 / mutation_operators.size());
+             // Default sensible weights: { 10, 10, 1, 1, 5, 5, 5, 5, 5, 5, 2, 2, 2, 3, 3 }
+             action_weights = { 10.0, 10.0, 1.0, 1.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 2.0, 2.0, 2.0, 3.0, 3.0 };
+             double total_w = 0.0; for (double w : action_weights) total_w += w;
+             for (double& w : action_weights) w /= total_w;
+
              std::fill(segment_scores.begin(), segment_scores.end(), 0.0);
              std::fill(segment_counts.begin(), segment_counts.end(), 0);
              iter_in_segment = 0;
@@ -330,7 +334,11 @@ void SAIsland4D::run_lns_sa() {
                 current_score = local_best_score;
 
                 // Reset ALNS weights for clean start on this window
-                std::fill(action_weights.begin(), action_weights.end(), 1.0 / mutation_operators.size());
+                // Default sensible weights: { 10, 10, 1, 1, 5, 5, 5, 5, 5, 5, 2, 2, 2, 3, 3 }
+                action_weights = { 10.0, 10.0, 1.0, 1.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 2.0, 2.0, 2.0, 3.0, 3.0 };
+                total_w = 0.0; for (double w : action_weights) total_w += w;
+                for (double& w : action_weights) w /= total_w;
+
                 std::fill(segment_scores.begin(), segment_scores.end(), 0.0);
                 std::fill(segment_counts.begin(), segment_counts.end(), 0);
                 iter_in_segment = 0;
