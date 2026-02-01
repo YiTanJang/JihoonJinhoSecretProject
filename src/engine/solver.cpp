@@ -336,7 +336,7 @@ void SAIsland4D::run_lns_sa() {
                 // Reset ALNS weights for clean start on this window
                 // Default sensible weights: { 10, 10, 1, 1, 5, 5, 5, 5, 5, 5, 2, 2, 2, 3, 3 }
                 action_weights = { 10.0, 10.0, 1.0, 1.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 2.0, 2.0, 2.0, 3.0, 3.0 };
-                total_w = 0.0; for (double w : action_weights) total_w += w;
+                double total_w = 0.0; for (double w : action_weights) total_w += w;
                 for (double& w : action_weights) w /= total_w;
 
                 std::fill(segment_scores.begin(), segment_scores.end(), 0.0);
