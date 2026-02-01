@@ -268,6 +268,12 @@ void SAIsland4D::run_lns_sa() {
              current_board = local_best_board;
              current_score = local_best_score;
              
+             // Reset ALNS weights for clean start on this hole
+             std::fill(action_weights.begin(), action_weights.end(), 1.0 / mutation_operators.size());
+             std::fill(segment_scores.begin(), segment_scores.end(), 0.0);
+             std::fill(segment_counts.begin(), segment_counts.end(), 0);
+             iter_in_segment = 0;
+
              // Punch hole (Randomize)
              apply_box_perturbation(r_start, c_start, 6, 6);
              
@@ -322,6 +328,12 @@ void SAIsland4D::run_lns_sa() {
                 // 1. Reset to Best Known (Greedy Base)
                 current_board = local_best_board;
                 current_score = local_best_score;
+
+                // Reset ALNS weights for clean start on this window
+                std::fill(action_weights.begin(), action_weights.end(), 1.0 / mutation_operators.size());
+                std::fill(segment_scores.begin(), segment_scores.end(), 0.0);
+                std::fill(segment_counts.begin(), segment_counts.end(), 0);
+                iter_in_segment = 0;
 
                 // 2. Perturb 4x4 Box
                 apply_box_perturbation(win.first, win.second, 5, 5);
