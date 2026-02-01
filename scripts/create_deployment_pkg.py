@@ -11,7 +11,11 @@ def zip_files(output_filename):
         "lib/**/*",
         "tools/**/*",
         "scripts/monitoring/monitor_4d.py",
-        "scripts/shared_mem_lib.py"
+        "scripts/shared_mem_lib.py",
+        "scripts/ffi_config.py",
+        "scripts/analysis/*.py",
+        "scripts/maintenance/*.py",
+        "scripts/optimization/*.py"
     ]
 
     with zipfile.ZipFile(output_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:

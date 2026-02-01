@@ -2,13 +2,13 @@ import ctypes
 import os
 import sys
 
-DLL_PATH = "bin/logic_ffi.dll"
+# Add project root to path to find scripts.ffi_config
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from scripts.ffi_config import load_logic_lib
 
 class BoardAnalyzer:
     def __init__(self):
-        if not os.path.exists(DLL_PATH):
-            raise FileNotFoundError(f"DLL not found: {DLL_PATH}")
-        self.lib = ctypes.CDLL(DLL_PATH)
+        self.lib = load_logic_lib()
         
         # Define function signatures
         self.lib.get_basis_size_ffi.restype = ctypes.c_int
