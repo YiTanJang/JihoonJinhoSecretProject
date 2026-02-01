@@ -281,7 +281,7 @@ void SAIsland4D::run_lns_sa() {
              // Punch hole (Randomize)
              apply_box_perturbation(r_start, c_start, 6, 6);
              
-             double temp_sa = 5.0;
+             double temp_sa = 2.0;
              double min_temp_sa = 0.1;
              double cooling_rate_sa = std::pow(min_temp_sa / temp_sa, 1.0 / 2000000.0);
              int max_iters_sa = 2000000;
@@ -346,8 +346,8 @@ void SAIsland4D::run_lns_sa() {
                 // 2. Perturb 4x4 Box
                 apply_box_perturbation(win.first, win.second, 5, 5);
 
-                // 3. Repair (Geometric Cooling 5.0 -> 0.1)
-                temp = 5.0;
+                // 3. Repair (Geometric Cooling 2.0 -> 0.1)
+                temp = 2.0;
                 double min_temp = 0.1;
                 int max_cooling_iters = 2000000;
                 // Recalculate cooling rate for new duration
