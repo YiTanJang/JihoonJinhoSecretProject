@@ -273,8 +273,8 @@ void SAIsland4D::run_lns_sa() {
              
              double temp_sa = 5.0;
              double min_temp_sa = 0.1;
-             double cooling_rate_sa = std::pow(min_temp_sa / temp_sa, 1.0 / 1000000.0);
-             int max_iters_sa = 1000000;
+             double cooling_rate_sa = std::pow(min_temp_sa / temp_sa, 1.0 / 2000000.0);
+             int max_iters_sa = 2000000;
              
              for(int iter=0; iter<max_iters_sa; ++iter) {
                  total_iter++; physics_window_iter++; iter_in_segment++;
@@ -282,7 +282,8 @@ void SAIsland4D::run_lns_sa() {
                  if (temp_sa < min_temp_sa) temp_sa = min_temp_sa;
                  temp = temp_sa; // Sync for monitor
 
-                 apply_lns_repair_mutation(r_start, c_start, 6, 6);
+                 // Global mutation as requested
+                 apply_mutation();
                  
                  update_monitor();
                  if (current_basis_count >= get_basis_size()) break;
@@ -323,11 +324,13 @@ void SAIsland4D::run_lns_sa() {
                 // 2. Perturb 4x4 Box
                 apply_box_perturbation(win.first, win.second, 5, 5);
 
-                // 3. Repair (Geometric Cooling 10.0 -> 0.1)
-                temp = 10.0;
-                double cooling_rate = 0.99998;
+                // 3. Repair (Geometric Cooling 5.0 -> 0.1)
+                temp = 5.0;
                 double min_temp = 0.1;
-                int max_cooling_iters = 600000;
+                int max_cooling_iters = 2000000;
+                // Recalculate cooling rate for new duration
+                double cooling_rate = std::pow(min_temp / temp, 1.0 / max_cooling_iters);
+                
                 int lns_stagnation_threshold = 15000;
                 int lns_cycle_stagnation = 0;
                 double best_in_cycle = current_score;
@@ -338,8 +341,8 @@ void SAIsland4D::run_lns_sa() {
                     temp *= cooling_rate;
                     if (temp < min_temp) temp = min_temp;
 
-                    // RESTRICTED MUTATIONS for LNS
-                    apply_lns_repair_mutation(win.first, win.second, 5, 5);
+                    // Global Mutation as requested
+                    apply_mutation();
                     
                     if (current_score > best_in_cycle) {
                         best_in_cycle = current_score;
