@@ -286,6 +286,8 @@ void SAIsland4D::run_lns_sa() {
                  apply_mutation();
                  
                  update_monitor();
+                 if (iter_in_segment >= 100) update_weights();
+
                  if (current_basis_count >= get_basis_size()) break;
                  if (g_terminate_all) break;
              }
@@ -352,6 +354,7 @@ void SAIsland4D::run_lns_sa() {
                     }
 
                     update_monitor();
+                    if (iter_in_segment >= 100) update_weights();
                     
                     if (current_basis_count >= get_basis_size()) break;
                     if (g_terminate_all) break;
