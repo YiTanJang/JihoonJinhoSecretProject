@@ -159,7 +159,7 @@ void SAIsland4D::run_standard_sa() {
                 if (iter_in_segment >= 100) update_weights();
 
                 // Logging
-                if (physics_window_iter >= 3000) {
+                if (physics_window_iter >= 50000) {
                     double overall_ar = (physics_window_iter > 0) ? (double)accepted_total_in_physics_window / physics_window_iter : 0.0;
                     double bad_ar = (total_bad_in_physics_window > 0) ? (double)accepted_bad_in_physics_window / total_bad_in_physics_window : 0.0;
                     
@@ -191,7 +191,7 @@ void SAIsland4D::run_standard_sa() {
                     }
                     physics_buffer.push_back(rec);
                     auto now = std::chrono::steady_clock::now();
-                    if (std::chrono::duration_cast<std::chrono::minutes>(now - last_dump_time).count() >= 15) {
+                    if (std::chrono::duration_cast<std::chrono::minutes>(now - last_dump_time).count() >= 60) {
                         save_physics_log_batch(physics_buffer); physics_buffer.clear(); last_dump_time = now;
                     }
                     accepted_bad_in_physics_window = 0; total_bad_in_physics_window = 0; accepted_total_in_physics_window = 0; physics_window_iter = 0;
@@ -398,8 +398,7 @@ void SAIsland4D::run_lns_sa() {
 
             if (current_basis_count >= get_basis_size()) break;
             
-            // Clean up physics logs periodically
-            if (physics_window_iter >= 3000) {
+            if (physics_window_iter >= 50000) {
                  accepted_bad_in_physics_window = 0; total_bad_in_physics_window = 0; accepted_total_in_physics_window = 0; physics_window_iter = 0;
                  for(size_t i=0; i<mutation_operators.size(); ++i) { action_total_bad_counts[i]=0; action_accepted_bad_counts[i]=0; action_energy_deltas[i]=0; action_energy_sq_deltas[i]=0; }
             }
@@ -851,7 +850,7 @@ void SAIsland4D::run_healing_burst(int iterations, double target_ar, bool use_ba
 }
 
 void SAIsland4D::update_monitor() {
-    if (!g_monitor_ptr || (total_iter % 100 != 0)) return;
+    if (!g_monitor_ptr || (total_iter % 10000 != 0)) return;
 
     // g_monitor_ptr->num_threads = 12; // Set by main
     // g_monitor_ptr->global_best_score = ...; // Optional: 4D global best
@@ -1062,7 +1061,8 @@ void SAIsland4D::run_polishing_sa() {
             update_monitor();
             if (iter_in_segment >= 100) update_weights();
 
-            if (physics_window_iter >= 3000) {
+            // Clean up physics logs periodically
+            if (physics_window_iter >= 50000) {
                  accepted_bad_in_physics_window = 0; total_bad_in_physics_window = 0; accepted_total_in_physics_window = 0; physics_window_iter = 0;
                  for(size_t i=0; i<mutation_operators.size(); ++i) { action_total_bad_counts[i]=0; action_accepted_bad_counts[i]=0; action_energy_deltas[i]=0; action_energy_sq_deltas[i]=0; }
             }
