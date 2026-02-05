@@ -140,7 +140,7 @@ def generate_layout():
     dt = time.time() - last_time
     last_time = time.time()
     
-    table = Table(expand=True, title="[bold cyan]NANO BANANA - 4D SIDE PROJECT MONITOR[/]")
+    table = Table(expand=True, title="[bold cyan]BOJ 18789 Simulator Monitor[/]")
     table.caption = "[bold yellow]Arrows: Nav | R: Soft Reseed | K: Kill Cycle & Reseed[/]"
     for col in ["ID", "Tr", "RH", "Cyc", "IPS", "Current", "Best", "Temp", "O.AR%", "B.AR%", "StdDev"]: table.add_column(col, justify="center")
 
