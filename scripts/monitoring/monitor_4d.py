@@ -142,7 +142,7 @@ def generate_layout():
     
     table = Table(expand=True, title="[bold cyan]BOJ 18789 Simulator Monitor[/]")
     table.caption = "[bold yellow]Arrows: Nav | R: Soft Reseed | K: Kill Cycle & Reseed[/]"
-    for col in ["ID", "Tr", "RH", "Cyc", "IPS", "Current", "Best", "Temp", "O.AR%", "B.AR%", "StdDev"]: table.add_column(col, justify="center")
+    for col in ["ID", "Cyc", "IPS", "Current", "Best", "Temp", "O.AR%", "B.AR%", "StdDev"]: table.add_column(col, justify="center")
 
     for s in statuses:
         try:
@@ -178,7 +178,7 @@ def generate_layout():
             c_oar = "[bold green]" if overall_ar > 0.1 else "[bold yellow]" if overall_ar > 0.01 else "[red]"
             
             table.add_row(
-                str(tid), f"{trial}", f"{reheat:.2f}", f"C{cycle}", f"{ema:,.0f}", 
+                str(tid), f"C{cycle}", f"{ema:,.0f}", 
                 f"[bold white]{curr:,.0f}[/]", f"[bold green]{best:,.0f}[/]", f"{c_temp}{temp:.2f}[/]", 
                 f"{c_oar}{overall_ar*100:.1f}%[/]", f"{bad_ar*100:.1f}%", f"{stddev:.1f}", 
                 style=row_style
