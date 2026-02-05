@@ -11,7 +11,7 @@ namespace Config4D {
     inline double SUM_MODE_TEMP_SCALE = 1000.0;
 
     // Stagnation & Reseed
-    inline int RESEED_STAGNATION_THRESHOLD = 4000000;
+    inline int RESEED_STAGNATION_THRESHOLD = 50000000;
 
     // Hybrid Mode Parameters
     inline int HYBRID_CYCLE_TOTAL = 500000;

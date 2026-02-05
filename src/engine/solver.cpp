@@ -200,7 +200,7 @@ void SAIsland4D::run_standard_sa() {
 
                 if (current_basis_count >= get_basis_size()) break;
                 if (stagnation_count >= Config4D::RESEED_STAGNATION_THRESHOLD) { hard_reset_needed = true; break; }
-                if (g_terminate_all || cycle_stagnation_count >= 1000000 || temp < Config4D::MIN_TEMP) break;
+                if (g_terminate_all || cycle_stagnation_count >= 10000000 || temp < Config4D::MIN_TEMP) break;
             }
 
             if (hard_reset_needed) break;
@@ -1068,7 +1068,7 @@ void SAIsland4D::run_polishing_sa() {
             }
 
             if (current_basis_count >= get_basis_size()) break;
-            if (cycle_stagnation_count >= 1000000 || temp < Config4D::MIN_TEMP) break;
+            if (cycle_stagnation_count >= 10000000 || temp < Config4D::MIN_TEMP) break;
             if (g_terminate_all) break;
         }
         
