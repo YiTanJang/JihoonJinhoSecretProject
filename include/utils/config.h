@@ -5,7 +5,7 @@ namespace Config4D {
     inline double CRITICAL_TEMP = 37.1848;
     inline double SECOND_CRITICAL_TEMP = 1.2841;
     inline double MIN_TEMP = 0.001 * CRITICAL_TEMP;   // 0.03923
-    inline double COOLING_RATE = 0.9999997;
+    inline double COOLING_RATE = 0.9999999;
     inline double INITIAL_TEMP = 100000.0;
     inline double REHEAT_TEMP_THRESHOLD = 100.0;
     inline double SUM_MODE_TEMP_SCALE = 1000.0;
