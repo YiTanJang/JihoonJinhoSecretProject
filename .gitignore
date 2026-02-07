@@ -31,6 +31,9 @@ db/
 *.DS_Store
 Thumbs.db
 
+# Documentation
+docs/
+
 # Logs and Output
 logs/
 *.log
